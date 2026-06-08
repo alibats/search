@@ -1,159 +1,138 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>محرك بحث خفيف</title>
-  <style>
-    html,body{height:100%;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#f6f6f6;color:#111}
-    .wrap{height:100%;display:table;width:100%}
-    .cell{display:table-cell;vertical-align:middle;text-align:center}
-    .box{margin:0 auto;width:84%;max-width:720px}
-    form{margin-bottom:14px}
-    input[type=text]{width:72%;padding:10px 12px;font-size:16px;border:1px solid #ccc;border-radius:3px}
-    button{padding:10px 14px;margin-left:6px;font-size:16px;border:1px solid #888;background:#eee;cursor:pointer}
-    #results{text-align:left;margin-top:10px}
-    .r{padding:10px;border-bottom:1px solid #e6e6e6}
-    .r a{color:#1a0dab;text-decoration:none;font-weight:bold}
-    .r p{margin:6px 0;color:#333}
-    #pagination{margin-top:12px;text-align:center}
-    #pagination button{margin:0 3px;padding:6px 8px;border-radius:3px}
-    #msg{color:#666;margin-top:6px}
-    @media (max-width:480px){input[type=text]{width:60%}}
-  </style>
+<meta charset="UTF-8">
+<title>PS3 Search Engine</title>
+
+<style>
+body {
+    background-color: #111;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    margin-top: 20px;
+    font-size: 22px;
+}
+
+.search-box {
+    margin-top: 20px;
+}
+
+input {
+    width: 80%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#results {
+    margin-top: 20px;
+    text-align: left;
+    padding: 10px;
+}
+
+.result {
+    background: #222;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 3px solid #4af;
+}
+
+.result a {
+    color: #4af;
+    text-decoration: none;
+}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="cell">
-      <div class="box">
-        <h2>محرك بحث خفيف</h2>
-        <form id="searchForm" onsubmit="return false;">
-          <input id="q" type="text" placeholder="اكتب ما تريد..." autocomplete="off" />
-          <button id="go" type="button">بحث</button>
-        </form>
-        <div id="msg"></div>
-        <div id="results"></div>
-        <div id="pagination"></div>
-      </div>
-    </div>
-  </div>
 
-  <script>
-  (function(){
-    var pageSize = 10;
-    var results = [];
-    var currentPage = 1;
+<h1>PS3 Search Engine</h1>
 
-    function $(id){return document.getElementById(id)}
+<div class="search-box">
+    <input type="text" id="query" placeholder="Search something...">
+    <br>
+    <button onclick="doSearch()">Search</button>
+</div>
 
-    function escapeHtml(s){
-      return String(s||"").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+<div id="results"></div>
+
+<script>
+function doSearch() {
+    var query = document.getElementById("query").value;
+
+    if (!query) {
+        document.getElementById("results").innerHTML = "<p>Please enter a search term.</p>";
+        return;
     }
 
-    function setMsg(t){ $('msg').innerHTML = t||'' }
+    var url = "https://api.duckduckgo.com/?q=" 
+              + encodeURIComponent(query) 
+              + "&format=json&no_redirect=1&no_html=1";
 
-    function clearResults(){ $('results').innerHTML = ''; $('pagination').innerHTML = ''; }
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
 
-    function makeItemFrom(it){
-      var title = it.Heading || it.Text || '';
-      var snippet = it.Text || it.Result || '';
-      var href = it.FirstURL || it.FirstUrl || it.FirstURL || parseHrefFromResult(it.Result) || '';
-      if(!title && snippet){
-        var parts = String(snippet).split(' - ');
-        title = parts[0]; snippet = parts.slice(1).join(' - ');
-      }
-      title = stripTags(title || ''); snippet = stripTags(snippet || '');
-      return {title: title, snippet: snippet, href: href};
-    }
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
 
-    function stripTags(s){ return String(s||'').replace(/<[^>]+>/g,'') }
-    function parseHrefFromResult(html){ if(!html) return ''; var m = html.match(/href=\"([^\"]+)\"/); return m? m[1] : ''; }
+                var data = JSON.parse(xhr.responseText);
+                var html = "";
 
-    function handleData(data){
-      var items = [];
-      try{
-        // Abstract / instant answer
-        if(data){
-          if(data.AbstractText){ items.push({title: data.Heading || data.AbstractText, snippet: data.AbstractText, href: data.AbstractURL || ''}); }
-          if(data.Results && data.Results.length){ for(var i=0;i<data.Results.length;i++){ items.push(makeItemFrom(data.Results[i])); } }
-          if(data.RelatedTopics && data.RelatedTopics.length){
-            for(var i=0;i<data.RelatedTopics.length;i++){
-              var t = data.RelatedTopics[i];
-              if(t.Topics && t.Topics.length){ for(var j=0;j<t.Topics.length;j++){ items.push(makeItemFrom(t.Topics[j])); } }
-              else { items.push(makeItemFrom(t)); }
+                // Abstract result (top answer)
+                if (data.AbstractText) {
+                    html += "<div class='result'>";
+                    html += "<b>Answer:</b><br>" + data.AbstractText + "<br>";
+                    if (data.AbstractURL) {
+                        html += "<a href='" + data.AbstractURL + "' target='_blank'>Read more</a>";
+                    }
+                    html += "</div>";
+                }
+
+                // Related topics
+                if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+                    for (var i = 0; i < data.RelatedTopics.length; i++) {
+                        var item = data.RelatedTopics[i];
+
+                        if (item.Text) {
+                            html += "<div class='result'>";
+                            html += item.Text + "<br>";
+                            if (item.FirstURL) {
+                                html += "<a href='" + item.FirstURL + "' target='_blank'>Open link</a>";
+                            }
+                            html += "</div>";
+                        }
+                    }
+                }
+
+                if (html === "") {
+                    html = "<p>No results found.</p>";
+                }
+
+                document.getElementById("results").innerHTML = html;
+
+            } else {
+                document.getElementById("results").innerHTML =
+                    "<p>Error loading results. Check internet connection.</p>";
             }
-          }
-          if(items.length===0 && data.Redirect){ items.push({title: data.Redirect, snippet: '', href: data.Redirect}); }
         }
-      }catch(e){ }
-      results = items;
-      if(!results.length){ clearResults(); setMsg('لا توجد نتائج للبحث.'); return; }
-      renderPage(1);
-    }
-
-    function renderPage(page){
-      currentPage = page||1;
-      var start = (currentPage-1)*pageSize;
-      var end = Math.min(results.length, start+pageSize);
-      var container = $('results'); container.innerHTML = '';
-      for(var i=start;i<end;i++){
-        var it = results[i];
-        var d = document.createElement('div'); d.className='r';
-        var a = document.createElement('a'); a.href = it.href || '#'; a.target = '_blank'; a.rel = 'noreferrer'; a.innerHTML = escapeHtml(it.title || it.href);
-        var p = document.createElement('p'); p.innerHTML = escapeHtml(it.snippet || '');
-        d.appendChild(a); d.appendChild(p); container.appendChild(d);
-      }
-      setMsg(''); renderPagination();
-    }
-
-    function renderPagination(){
-      var el = $('pagination'); el.innerHTML='';
-      var pages = Math.ceil(results.length / pageSize);
-      if(pages<=1) return;
-      var prev = document.createElement('button'); prev.innerHTML = '‹'; prev.disabled = currentPage===1; prev.onclick = function(){ if(currentPage>1) renderPage(currentPage-1); };
-      el.appendChild(prev);
-      var maxButtons = 9; var start = 1; var end = pages; if(pages>maxButtons) end = maxButtons;
-      for(var i=start;i<=end;i++){
-        (function(i){
-          var b = document.createElement('button'); b.innerHTML = i; if(i===currentPage) b.style.fontWeight='bold'; b.onclick = function(){ renderPage(i); };
-          el.appendChild(b);
-        })(i);
-      }
-      if(pages>maxButtons){ var more = document.createElement('span'); more.innerHTML = ' ...'; el.appendChild(more); }
-      var next = document.createElement('button'); next.innerHTML = '›'; next.disabled = currentPage===pages; next.onclick = function(){ if(currentPage<pages) renderPage(currentPage+1); };
-      el.appendChild(next);
-    }
-
-    function jsonpSearch(q){
-      var cb = 'ddgcb' + (+new Date());
-      var triedHttp = false;
-      window[cb] = function(data){ try{ handleData(data); } finally { try{ delete window[cb]; }catch(e){} var s=document.getElementById(cb); if(s && s.parentNode) s.parentNode.removeChild(s); } };
-      var baseHttps = 'https://api.duckduckgo.com/';
-      var baseHttp = 'http://api.duckduckgo.com/';
-      // prefer to include HTML in Result so we can parse links if present
-      var params = '?q=' + encodeURIComponent(q) + '&format=json&no_html=0&no_redirect=1&callback=' + cb;
-      var s = document.createElement('script'); s.id = cb;
-      s.src = baseHttps + params;
-      s.onerror = function(){
-        if(!triedHttp){ triedHttp = true; try{ if(s.parentNode) s.parentNode.removeChild(s); }catch(e){}
-          s = document.createElement('script'); s.id = cb; s.src = baseHttp + params; s.onerror = function(){ setMsg('فشل الاتصال بمصدر النتائج.'); try{ delete window[cb]; }catch(e){} }; (document.getElementsByTagName('head')[0] || document.body).appendChild(s);
-        } else {
-          setMsg('فشل الاتصال بمصدر النتائج.'); try{ delete window[cb]; }catch(e){}
-        }
-      };
-      (document.getElementsByTagName('head')[0] || document.body).appendChild(s);
-    }
-
-    window.doSearch = function(){
-      var q = $('q').value.replace(/^\s+|\s+$/g,''); if(!q){ setMsg('أدخل استعلام للبحث.'); return; }
-      setMsg('جارٍ البحث...'); clearResults(); results = []; currentPage = 1; jsonpSearch(q);
     };
 
-    // events
-    if(document.addEventListener){ document.addEventListener('DOMContentLoaded', function(){ $('go').onclick = doSearch; $('q').onkeypress = function(e){ e = e || window.event; var k = e.keyCode || e.which; if(k===13){ doSearch(); return false; } }; }); }
-    else { window.onload = function(){ $('go').onclick = doSearch; $('q').onkeypress = function(e){ e = e || window.event; var k = e.keyCode || e.which; if(k===13){ doSearch(); return false; } }; } }
+    xhr.send();
+}
+</script>
 
-  })();
-  </script>
 </body>
 </html>
