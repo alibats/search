@@ -1,146 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>PS3 Pro Search Engine</title>
-
-<style>
-body {
-    background:#111;
-    color:white;
-    font-family:Arial;
-    text-align:center;
-    margin:0;
-    padding:0;
-}
-
-h1 {
-    margin-top:15px;
-    font-size:20px;
-}
-
-input {
-    width:80%;
-    padding:10px;
-    font-size:16px;
-    margin-top:10px;
-}
-
-button {
-    padding:10px 15px;
-    margin:5px;
-    font-size:14px;
-    cursor:pointer;
-}
-
-#results {
-    text-align:left;
-    padding:10px;
-}
-
-.box {
-    background:#222;
-    padding:10px;
-    margin-bottom:10px;
-    border-left:3px solid #4af;
-}
-
-a {
-    color:#4af;
-}
-</style>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>PS3 Simple Search</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
-
 <body>
+  <div id="container">
+    <div id="logo">Bats Search</div>
+    <form id="searchForm" onsubmit="return doSearch();">
+      <div id="searchBox">
+        <input type="text" name="q" id="q" size="50" placeholder="Search the web">
+      </div>
+      <div id="buttons">
+        <input type="submit" value="Search">
+        <input type="button" value="I'm Feeling Lucky" onclick="luckySearch();">
+      </div>
+    </form>
 
-<h1>PS3 Pro Search Engine</h1>
+    <div id="status"></div>
+    <div id="results"></div>
+  </div>
 
-<input id="q" placeholder="Search the web...">
-<br>
-
-<button onclick="apiSearch()">API Search</button>
-<button onclick="liteSearch()">Google Lite</button>
-<button onclick="clearResults()">Clear</button>
-
-<div id="results"></div>
-
-<script>
-
-// ----------------------
-// CLEAR RESULTS
-// ----------------------
-function clearResults(){
-    document.getElementById("results").innerHTML = "";
-}
-
-// ----------------------
-// API SEARCH (DuckDuckGo)
-// ----------------------
-function apiSearch(){
-    var q = document.getElementById("q").value;
-    if(!q) return;
-
-    var url = "https://api.duckduckgo.com/?q=" 
-        + encodeURIComponent(q) 
-        + "&format=json&no_html=1";
-
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-
-    xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4 && xhr.status === 200){
-
-            var data = JSON.parse(xhr.responseText);
-            var html = "<h3>API Results</h3>";
-
-            function render(arr){
-                for(var i=0;i<arr.length;i++){
-                    var item = arr[i];
-
-                    if(item.Topics){
-                        html = render(item.Topics);
-                    }
-
-                    if(item.Text){
-                        html += "<div class='box'>";
-                        html += item.Text + "<br>";
-
-                        if(item.FirstURL){
-                            html += "<a href='"+item.FirstURL+"' target='_blank'>Open</a>";
-                        }
-
-                        html += "</div>";
-                    }
-                }
-                return html;
-            }
-
-            html = render(data.RelatedTopics);
-
-            if(html === "<h3>API Results</h3>"){
-                html += "<div class='box'>No API results found.</div>";
-            }
-
-            document.getElementById("results").innerHTML = html;
-        }
-    };
-
-    xhr.send();
-}
-
-// ----------------------
-// GOOGLE LITE SEARCH
-// ----------------------
-function liteSearch(){
-    var q = document.getElementById("q").value;
-    if(!q) return;
-
-    var url = "http://lite.duckduckgo.com/lite/?q=" + encodeURIComponent(q);
-
-    window.location.href = url;
-}
-
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>

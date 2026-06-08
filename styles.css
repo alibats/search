@@ -1,0 +1,48 @@
+body, html {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  background: #ffffff;
+  color: #000000;
+}
+#container {
+  width: 680px;
+  margin: 40px auto;
+  text-align: center;
+}
+#logo {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+#searchBox { margin: 0 0 12px 0; }
+#q {
+  font-size: 18px;
+  padding: 6px;
+  width: 480px;
+}
+#buttons input {
+  font-size: 14px;
+  padding: 6px 10px;
+  margin-right: 6px;
+}
+
+#results { text-align: left; margin-top: 18px; }
+#results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+#results td, #results th {
+  border: 1px solid #cccccc;
+  padding: 6px;
+  vertical-align: top;
+}
+.result-title { font-weight: bold; }
+.result-url { color: #0066cc; font-size: 12px; }
+.result-desc { font-size: 13px; }
+
+#status { margin: 8px 0; color: #333333; }
+
+/* Use simple float-based layout where needed */
+.left { float: left; }
+.clear { clear: both; }
