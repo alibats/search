@@ -1,48 +1,92 @@
 body, html {
+  height: 100%;
+  margin: 0;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   background: #ffffff;
   color: #000000;
 }
 #container {
-  width: 680px;
-  margin: 40px auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
+  padding: 20px;
 }
 #logo {
-  font-size: 48px;
+  font-size: 56px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 #searchBox { margin: 0 0 12px 0; }
+#searchBox { margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; position: relative; }
 #q {
-  font-size: 18px;
-  padding: 6px;
-  width: 480px;
+  font-size: 20px;
+  padding: 10px 12px;
+  width: 600px;
+  max-width: 70vw;
+  box-sizing: border-box;
 }
-#buttons input {
-  font-size: 14px;
-  padding: 6px 10px;
-  margin-right: 6px;
+#searchBtn {
+  font-size: 16px;
+  padding: 10px 14px;
+  background: #0066cc;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
+#searchBtn:hover { background: #0052a3; }
 
-#results { text-align: left; margin-top: 18px; }
-#results table {
-  width: 100%;
-  border-collapse: collapse;
+#quickButtons { margin-top: 14px; display: flex; gap: 10px; }
+.quick-btn {
+  display: inline-block;
+  padding: 8px 12px;
+  background: #f2f2f2;
+  color: #000;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
-#results td, #results th {
-  border: 1px solid #cccccc;
-  padding: 6px;
-  vertical-align: top;
+.quick-btn:hover { background: #e6e6e6; }
+
+/* Suggestions dropdown */
+#suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 58px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 40;
+  display: none;
 }
+.suggest-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f4f4f4;
+}
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:hover, .suggest-item.selected { background: #f0f8ff; }
+.suggest-title { font-weight: bold; font-size: 14px; }
+.suggest-url { font-size: 12px; color: #666; margin-top: 4px; }
+
+/* hide buttons and status on minimal homepage */
+#buttons { display: none; }
+#status { display: none; }
+
+#results { text-align: left; margin-top: 18px; width: 100%; max-width: 900px; }
+#results table { width: 100%; border-collapse: collapse; }
+#results td, #results th { border: 1px solid #cccccc; padding: 6px; vertical-align: top; }
 .result-title { font-weight: bold; }
 .result-url { color: #0066cc; font-size: 12px; }
 .result-desc { font-size: 13px; }
 
-#status { margin: 8px 0; color: #333333; }
-
-/* Use simple float-based layout where needed */
 .left { float: left; }
 .clear { clear: both; }

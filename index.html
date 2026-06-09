@@ -10,13 +10,16 @@
     <div id="logo">Bats Search</div>
     <form id="searchForm" onsubmit="return doSearch();">
       <div id="searchBox">
-        <input type="text" name="q" id="q" size="50" placeholder="Search the web">
-      </div>
-      <div id="buttons">
-        <input type="submit" value="Search">
-        <input type="button" value="I'm Feeling Lucky" onclick="luckySearch();">
+        <input type="text" name="q" id="q" size="50" placeholder="Search the web" autocomplete="off" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false">
+        <button type="submit" id="searchBtn">Search</button>
+        <div id="suggestions" role="listbox" aria-label="Search suggestions"></div>
       </div>
     </form>
+
+    <div id="quickButtons">
+      <a class="quick-btn" href="https://ps3xploit.me" target="_blank">ps3xploit</a>
+      <a class="quick-btn" href="https://alibats.github.io/search" target="_blank">Ps3Bats</a>
+    </div>
 
     <div id="status"></div>
     <div id="results"></div>
