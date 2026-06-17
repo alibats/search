@@ -34,6 +34,42 @@ function loadData() {
   }
 }
 
+function loadQuickButtons() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'quick_buttons.json', true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      var container = document.getElementById('quickButtons');
+      if (!container) return;
+      if ((xhr.status === 200) || (xhr.status === 0 && xhr.responseText)) {
+        try {
+          var list = JSON.parse(xhr.responseText);
+          var html = '';
+          for (var i = 0; i < list.length; i++) {
+            var it = list[i];
+            var title = escapeHtml(it.title || it.name || '');
+            var url = escapeHtml(it.url || it.link || '');
+            if (url) {
+              html += '<a class="quick-btn" href="' + url + '" target="_blank">' + title + '</a> ';
+            }
+          }
+          container.innerHTML = html;
+        } catch (e) {
+          container.innerHTML = 'Error parsing quick_buttons.json';
+        }
+      } else {
+        container.innerHTML = 'Failed to load quick_buttons.json (HTTP ' + xhr.status + ')';
+      }
+    }
+  };
+  try {
+    xhr.send(null);
+  } catch (e) {
+    var container = document.getElementById('quickButtons');
+    if (container) container.innerHTML = 'XHR send failed: ' + (e.message || e);
+  }
+}
+
 function escapeHtml(s) {
   if (!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -161,6 +197,7 @@ function luckySearch() {
 
 window.onload = function() {
   loadData();
+  loadQuickButtons();
   var qel = document.getElementById('q');
   var scont = document.getElementById('suggestions');
   if (qel) {
